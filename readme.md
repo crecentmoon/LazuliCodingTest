@@ -39,7 +39,7 @@
     string tag_from_review
   }
 
-  Products ||..o| Makers: maker_id
+  Products ||..|| Makers: maker_id
   Products ||..o| Brands: brand_id
   Products ||--o| Attributes: jan
   Products ||--o{ DescriptionTags: jan
