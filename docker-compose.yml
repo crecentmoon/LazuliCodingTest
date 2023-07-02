@@ -1,0 +1,30 @@
+version: "3"
+services:
+  app:
+    container_name: lazuli-app-local-1
+    build:
+      context: .
+      target: local
+      dockerfile: ./app/app.dockerfile
+    ports:
+      - 8080:8080
+    volumes:
+      - ./app:/app:cached
+    depends_on:
+      - db
+  db:
+    container_name: lazuli-db-local-1
+    build:
+      context: .
+      dockerfile: ./db/db.dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: lazuli
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db/mysql_init:/docker-entrypoint-initdb.d:cached
+      - ./db/mysql_data:/var/lib/mysql:cached
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
