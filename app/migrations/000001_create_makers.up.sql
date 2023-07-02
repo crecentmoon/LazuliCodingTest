@@ -1,1 +1,4 @@
-DROP TABLE IF EXISTS Makers;
+CREATE TABLE IF NOT EXISTS Makers (
+  id INT PRIMARY KEY,
+  maker_name VARCHAR(255)
+);
