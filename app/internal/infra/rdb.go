@@ -6,8 +6,6 @@ import (
 	"log"
 	"os"
 
-	rdb "github.com/crecentmoon/lazuli-coding-test/internal/adapter/rdb"
-	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -17,9 +15,15 @@ type SqlHandler struct {
 	db *gorm.DB
 }
 
+type SqlInterface interface {
+	Execute(ctx context.Context, sql string, params ...interface{}) (uint, error)
+	Query(obj interface{}, sql string, params ...interface{}) error
+	DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error)
+}
+
 var txKey = struct{}{}
 
-func NewSqlHandler() rdb.SqlHandler {
+func NewSqlHandler() (SqlInterface, error) {
 	dbURL := os.Getenv("DB_URL")
 	port := os.Getenv("DB_PORT")
 	dbName := os.Getenv("DB_DATABASE")
@@ -35,15 +39,7 @@ func NewSqlHandler() rdb.SqlHandler {
 	sqlHandler := new(SqlHandler)
 	sqlHandler.db = db
 
-	return sqlHandler
-}
-
-func (handler *SqlHandler) InitRDB() {
-	// handler.db.SetupJoinTable(&entity.TrnUser{}, "FavoriteRecipes", &entity.TrnRecipeFavorite{})
-	// handler.db.SetupJoinTable(&entity.TrnRecipe{}, "FavoritedUser", &entity.TrnRecipeFavorite{})
-	handler.db.AutoMigrate(
-		domain.MstCountry{},
-	)
+	return sqlHandler, err
 }
 
 func (handler *SqlHandler) Execute(ctx context.Context, query string, params ...interface{}) (uint, error) {

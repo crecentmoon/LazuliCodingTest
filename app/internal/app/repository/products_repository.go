@@ -3,6 +3,8 @@ package rdb
 import (
 	"context"
 	"time"
+
+	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
 )
 
 type ProductsRepository struct {
@@ -39,4 +41,9 @@ func (db *ProductsRepository) GetRecipeById(recipeId interface{}) (*entity.TrnRe
 	}
 
 	return &r, nil
+}
+
+func (db *ProductsRepository) StoreProducts(ctx context.Context, p domain.Product) {
+	makerQuery := "INSERT INTO Makers (maker_name) VALUES (?)"
+	_, err := db.Execute(ctx, makerQuery, p.Maker)
 }
