@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type DescriptionTag struct {
 	ID  uint   `gorm:"primaryKey"`

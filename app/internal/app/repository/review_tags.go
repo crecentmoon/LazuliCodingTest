@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type ReviewTag struct {
 	ID  uint   `gorm:"primaryKey"`

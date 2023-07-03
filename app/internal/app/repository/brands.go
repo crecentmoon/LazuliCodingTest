@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type Brand struct {
 	ID   uint   `gorm:"primaryKey"`

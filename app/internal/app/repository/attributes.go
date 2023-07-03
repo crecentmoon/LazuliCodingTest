@@ -1,4 +1,4 @@
-package domain
+package repository
 
 type Attribute struct {
 	ID    uint   `gorm:"primaryKey"`

@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if os.Args[1] == "populate" {
-		lazuli.PopulateTestData()
+		lazuli.GenerateTestData()
 		log.Println("OK: Finished populating test data")
 		os.Exit(1)
 	}

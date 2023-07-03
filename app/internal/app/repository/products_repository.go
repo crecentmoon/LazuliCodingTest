@@ -1,7 +1,8 @@
-package rdb
+package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
@@ -22,7 +23,7 @@ func (db *ProductsRepository) Store(ctx context.Context, r entity.TrnRecipe) (ui
 	return id, nil
 }
 
-func (db *ProductsRepository) GetRecipeById(recipeId interface{}) (*entity.TrnRecipe, error) {
+func (db *ProductsRepository) GetProductByJan(JAN interface{}) (*entity.TrnRecipe, error) {
 	r := entity.TrnRecipe{}
 
 	getRecipe := "SELECT * FROM trn_recipes WHERE id = ?"
@@ -43,7 +44,44 @@ func (db *ProductsRepository) GetRecipeById(recipeId interface{}) (*entity.TrnRe
 	return &r, nil
 }
 
-func (db *ProductsRepository) StoreProducts(ctx context.Context, p domain.Product) {
+func (db *ProductsRepository) StoreProductRelatedData(ctx context.Context, p domain.Product) error {
 	makerQuery := "INSERT INTO Makers (maker_name) VALUES (?)"
-	_, err := db.Execute(ctx, makerQuery, p.Maker)
+	makerID, err := db.Execute(ctx, makerQuery, p.Maker)
+	if err != nil {
+		return fmt.Errorf("failed to insert maker: %v", err)
+	}
+
+	brandQuery := "INSERT INTO Brands (brand_name) VALUES (?)"
+	brandID, err := db.Execute(ctx, brandQuery, p.Brand)
+	if err != nil {
+		return fmt.Errorf("failed to insert brand: %v", err)
+	}
+
+	productQuery := "INSERT INTO Products (jan, product_name, maker_id, brand_id) VALUES (?, ?, LAST_INSERT_ID(), LAST_INSERT_ID())"
+	_, err = db.Execute(ctx, productQuery, p.JAN, p.ProductName, makerID, brandID)
+	if err != nil {
+		return fmt.Errorf("failed to insert product: %v", err)
+	}
+
+	attrQuery := "INSERT INTO Attributes (jan, attribute_data) VALUES (?, ?)"
+	_, err = db.Execute(ctx, attrQuery, p.JAN, p.Attributes)
+	if err != nil {
+		return fmt.Errorf("failed to insert attribute: %v", err)
+	}
+
+	for _, tag := range p.TagsFromDescription {
+		tagQuery := "INSERT INTO DescriptionTags (jan, tag_from_description) VALUES (?, ?)"
+		_, err = db.Execute(ctx, tagQuery, p.JAN, tag)
+		if err != nil {
+			return fmt.Errorf("failed to insert description tag: %v", err)
+		}
+	}
+
+	for _, tag := range p.TagsFromReview {
+		tagQuery := "INSERT INTO ReviewTags (jan, tag_from_review) VALUES (?, ?)"
+		_, err = db.Execute(ctx, tagQuery, p.JAN, tag)
+		if err != nil {
+			return fmt.Errorf("failed to insert review tag: %v", err)
+		}
+	}
 }
