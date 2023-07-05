@@ -1,10 +1,7 @@
 package usecase
 
 import (
-	"bufio"
-	"encoding/json"
 	"log"
-	"os"
 	"path/filepath"
 
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/service"
@@ -21,11 +18,7 @@ func NewProductUseCase(productService *service.ProductService) *ProductUseCase {
 	}
 }
 
-func PopulateProductData() {
-	db, err := infra.NewSqlHandler()
-	if err != nil {
-		log.Fatal(err)
-	}
+func (p *ProductUseCase) PopulateProductData() {
 
 	jsonlPath := "app/tests/testdata/"
 
@@ -35,42 +28,17 @@ func PopulateProductData() {
 	}
 
 	for _, file := range files {
-		err = importRepositoryDataFromFile(file, db)
+		err = p.productService.ImportProductDataFromJsonl(file)
 		if err != nil {
 			log.Println(err)
 		}
 	}
-
 }
 
-func importRepositoryDataFromFile(file string, db infra.SqlInterface) error {
-	f, err := os.Open(file)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+func (p *ProductUseCase) SearchProductByJan(jan string) (*domain.Product, error) {
+	return p.productService.SearchProductByJan(jan)
+}
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Bytes()
-
-		var product domain.Product
-		err := json.Unmarshal(line, &product)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-
-		err = repository.StoreProductRelatedData(product, db)
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
-	return nil
+func (p *ProductUseCase) CalculateProductAdequacyRate(product *domain.Product) (float64, error) {
+	return p.productService.CalculateProductAdequacyRate(product)
 }

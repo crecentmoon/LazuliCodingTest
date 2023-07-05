@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strconv"
 
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/repository"
 	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
@@ -20,7 +21,7 @@ func NewProductService(productRepo repository.ProductRepository) *ProductService
 	}
 }
 
-func (p *ProductService) ImportRepositoryDataFromFile(file string) error {
+func (r *ProductService) ImportProductDataFromJsonl(file string) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -38,7 +39,7 @@ func (p *ProductService) ImportRepositoryDataFromFile(file string) error {
 			continue
 		}
 
-		err = repository.StoreProductRelatedData(product, db)
+		err = repository.StoreProducts(product, db)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -50,4 +51,17 @@ func (p *ProductService) ImportRepositoryDataFromFile(file string) error {
 	}
 
 	return nil
+}
+
+func (r *ProductService) convertToProductModel(p *domain.Product) (*repository.ProductModel, error) {
+	productModel := &repository.ProductModel{
+		JAN:             strconv.Atoi(p.JAN),
+		ProductName:     p.ProductName,
+		Maker:           p.Maker,
+		Brand:           p.Brand,
+		Attribute:       p.Attributes,
+		DescriptionTags: p.DescriptionTags,
+		ReviewTags:      p.ReviewTags,
+	}
+	return product, nil
 }
