@@ -4,31 +4,29 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 
 	"github.com/crecentmoon/lazuli-coding-test/cmd/lazuli"
-	"github.com/joho/godotenv"
+	"github.com/crecentmoon/lazuli-coding-test/internal/infra"
+	"github.com/crecentmoon/lazuli-coding-test/pkg/config"
 )
 
 func main() {
-	_, file, _, ok := runtime.Caller(0)
-	if !ok {
-		fmt.Fprintf(os.Stderr, "ERROR: Unable to identify current directory (needed to load .env)")
-		os.Exit(1)
-	}
-	basepath := filepath.Dir(file)
-	log.Println(basepath)
-	err := godotenv.Load(filepath.Join(basepath, ".env"))
+	cfg, err := config.LoadConfig()
+
+	db, err := infra.NewMySQLHandler(cfg)
 	if err != nil {
-		log.Fatal("ERROR: Failed to load .env file")
+		log.Fatal(err)
 	}
 
-	if os.Args[1] == "populate" {
-		lazuli.GenerateTestData()
-		log.Println("OK: Finished populating test data")
-		os.Exit(1)
+	if len(os.Args) > 1 {
+		command := os.Args[1]
+		switch command {
+		case "populate":
+			lazuli.PopulateTestData(db)
+		default:
+			fmt.Println("Command is invalid. Available commands are: populate")
+		}
+	} else {
+		lazuli.InitServer(db)
 	}
-
-	lazuli.InitServer()
 }

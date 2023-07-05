@@ -6,11 +6,21 @@ import (
 	"log"
 	"os"
 
+	"github.com/crecentmoon/lazuli-coding-test/internal/app/repository"
 	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
-	"github.com/crecentmoon/lazuli-coding-test/internal/infra"
 )
 
-func ImportRepositoryDataFromFile(file string, db infra.SqlInterface) error {
+type ProductService struct {
+	productRepo repository.ProductRepository
+}
+
+func NewProductService(productRepo repository.ProductRepository) *ProductService {
+	return &ProductService{
+		productRepo: productRepo,
+	}
+}
+
+func (p *ProductService) ImportRepositoryDataFromFile(file string) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err

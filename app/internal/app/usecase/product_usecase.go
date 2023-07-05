@@ -7,11 +7,21 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/crecentmoon/lazuli-coding-test/internal/app/service"
 	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
-	"github.com/crecentmoon/lazuli-coding-test/internal/infra"
 )
 
-func PopulateProductRelatedData() {
+type ProductUseCase struct {
+	productService *service.ProductService
+}
+
+func NewProductUseCase(productService *service.ProductService) *ProductUseCase {
+	return &ProductUseCase{
+		productService: productService,
+	}
+}
+
+func PopulateProductData() {
 	db, err := infra.NewSqlHandler()
 	if err != nil {
 		log.Fatal(err)

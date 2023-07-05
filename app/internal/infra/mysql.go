@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"log"
-	"os"
+	"strconv"
 
+	"github.com/crecentmoon/lazuli-coding-test/internal/app/repository"
+	"github.com/crecentmoon/lazuli-coding-test/pkg/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,22 +17,16 @@ type SqlHandler struct {
 	db *gorm.DB
 }
 
-type SqlInterface interface {
-	Execute(ctx context.Context, sql string, params ...interface{}) (uint, error)
-	Query(obj interface{}, sql string, params ...interface{}) error
-	DoInTx(ctx context.Context, f func(ctx context.Context) (interface{}, error)) (interface{}, error)
-}
-
 var txKey = struct{}{}
 
-func NewSqlHandler() (SqlInterface, error) {
-	dbURL := os.Getenv("DB_URL")
-	port := os.Getenv("DB_PORT")
-	dbName := os.Getenv("DB_DATABASE")
-	user := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
+func NewMySQLHandler(cfg config.Config) (repository.SqlHandler, error) {
+	dbURL := cfg.Database.Host
+	port := cfg.Database.Port
+	dbName := cfg.Database.DBName
+	user := cfg.Database.Username
+	password := cfg.Database.Password
 
-	dsn := user + ":" + password + "@tcp(" + dbURL + ":" + port + ")/" + dbName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := user + ":" + password + "@tcp(" + dbURL + ":" + strconv.Itoa(port) + ")/" + dbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: logger.Default.LogMode(logger.Info)})
 	if err != nil {
