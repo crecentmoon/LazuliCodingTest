@@ -46,6 +46,24 @@ func (r *ProductService) ImportProductDataFromJsonlFile(file string) error {
 			log.Println(err)
 			continue
 		}
+
+		err = r.productRepo.CreateAttribute(context.Background(), &productModel)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		err = r.productRepo.CreateDescriptionTags(context.Background(), &productModel)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		err = r.productRepo.CreateReviewTags(context.Background(), &productModel)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
 	}
 
 	if err := scanner.Err(); err != nil {

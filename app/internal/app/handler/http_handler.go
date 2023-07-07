@@ -1,5 +1,12 @@
 package handler
 
+import "github.com/labstack/echo"
+
+func InitializeServer() {
+	e := echo.New()
+	e.Logger.Fatal(e.Start(":8080"))
+}
+
 // func Init() {
 // 	e := echo.New()
 
