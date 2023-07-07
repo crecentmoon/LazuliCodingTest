@@ -22,7 +22,7 @@ func NewProductService(productRepo repository.ProductRepository) *ProductService
 	}
 }
 
-func (r *ProductService) ImportProductDataFromJsonl(file string) error {
+func (r *ProductService) ImportProductDataFromJsonlFile(file string) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -124,8 +124,8 @@ func (r *ProductService) mapToReviewTagsModel(p *domain.Product) []repository.Re
 	return reviewTagsModel
 }
 
-func convertJAN(jan string) int {
-	janInt, _ := strconv.Atoi(jan)
+func convertJAN(jan string) int64 {
+	janInt, _ := strconv.ParseInt(jan, 10, 64)
 
 	return janInt
 }

@@ -1,0 +1,1 @@
+INSERT INTO Brands (id, brand_name) VALUES (1, 'hoge');

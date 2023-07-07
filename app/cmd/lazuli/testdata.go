@@ -1,6 +1,9 @@
 package lazuli
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/repository"
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/service"
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/usecase"
@@ -11,5 +14,9 @@ func PopulateTestData(db repository.SqlHandler) {
 	productService := service.NewProductService(*productRepository)
 	productUsecase := usecase.NewProductUseCase(productService)
 
-	productUsecase.PopulateProductData()
+	if err := productUsecase.PopulateProductData(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Successfully populated test data")
 }

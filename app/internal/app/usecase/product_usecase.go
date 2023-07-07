@@ -1,7 +1,6 @@
 package usecase
 
 import (
-	"log"
 	"path/filepath"
 
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/service"
@@ -17,21 +16,22 @@ func NewProductUseCase(productService *service.ProductService) *ProductUseCase {
 	}
 }
 
-func (p *ProductUseCase) PopulateProductData() {
+func (p *ProductUseCase) PopulateProductData() error {
 
-	jsonlPath := "app/tests/testdata/"
+	jsonlPath := "tests/testdata/"
 
 	files, err := filepath.Glob(jsonlPath + "*.jsonl")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	for _, file := range files {
-		err = p.productService.ImportProductDataFromJsonl(file)
-		if err != nil {
-			log.Println(err)
+		if err := p.productService.ImportProductDataFromJsonlFile(file); err != nil {
+			return err
 		}
 	}
+
+	return nil
 }
 
 // func (p *ProductUseCase) SearchProductByJan(jan string) (*domain.Product, error) {

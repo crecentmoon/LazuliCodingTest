@@ -38,3 +38,7 @@ install-migrate:
 .PHONY: migrate-up
 migrate-up:
 	docker-compose exec app bash -c "migrate -path migrations -database 'mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}?multiStatements=true' -verbose up"
+
+.PHONY: migrate-down
+migrate-down:
+	docker-compose exec app bash -c "migrate -path migrations -database 'mysql://${DB_USER}:${DB_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/${DB_NAME}?multiStatements=true' -verbose down"

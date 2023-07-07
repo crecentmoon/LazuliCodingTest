@@ -4,17 +4,17 @@ import "encoding/json"
 
 type MakerModel struct {
 	ID   uint   `gorm:"primaryKey"`
-	Name string `gorm:"not null;varcher(255)"`
+	Name string `gorm:"not null;varchar(255)"`
 }
 
 type BrandModel struct {
 	ID   uint   `gorm:"primaryKey"`
-	Name string `gorm:"not null;varcher(255)"`
+	Name string `gorm:"not null;varchar(255)"`
 }
 
 type ProductModel struct {
-	JAN             int                   `gorm:"primaryKey"`
-	ProductName     string                `gorm:"not null;varcher(255)"`
+	JAN             int64                 `gorm:"primaryKey"`
+	ProductName     string                `gorm:"not null;varchar(255)"`
 	Maker           MakerModel            `gorm:"foreignKey:MakerID"`
 	Brand           BrandModel            `gorm:"foreignKey:BrandID"`
 	Attribute       AttributeModel        `gorm:"foreignKey:JAN"`
@@ -24,18 +24,18 @@ type ProductModel struct {
 
 type AttributeModel struct {
 	ID    uint            `gorm:"primaryKey"`
-	JAN   int             `gorm:"not null"`
+	JAN   int64           `gorm:"not null"`
 	Value json.RawMessage `gorm:"not null"`
 }
 
 type DescriptionTagModel struct {
 	ID  uint   `gorm:"primaryKey"`
-	JAN int    `gorm:"not null"`
-	Tag string `gorm:"not null;varcher(255)"`
+	JAN int64  `gorm:"not null"`
+	Tag string `gorm:"not null;varchar(255)"`
 }
 
 type ReviewTagModel struct {
 	ID  uint   `gorm:"primaryKey"`
-	JAN int    `gorm:"not null"`
-	Tag string `gorm:"not null;varcher(255)"`
+	JAN int64  `gorm:"not null"`
+	Tag string `gorm:"not null;varchar(255)"`
 }

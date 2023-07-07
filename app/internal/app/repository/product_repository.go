@@ -14,20 +14,29 @@ func NewProductRepository(sqlHandler SqlHandler) *ProductRepository {
 }
 
 func (db *ProductRepository) CreateProduct(ctx context.Context, p *ProductModel) error {
-	makerQuery := "INSERT INTO Makers (maker_name) VALUES (?)"
-	makerID, err := db.Execute(ctx, makerQuery, p.Maker)
-	if err != nil {
-		return fmt.Errorf("failed to insert maker: %v", err)
+	p.Maker.ID = 1
+	p.Brand.ID = 1
+
+	if p.Maker.Name != "" && len(p.Maker.Name) > 0 {
+		makerQuery := "INSERT INTO Makers (maker_name) VALUES (?)"
+		makerID, err := db.Execute(ctx, makerQuery, p.Maker.Name)
+		if err != nil {
+			return fmt.Errorf("failed to insert maker: %v", err)
+		}
+		p.Maker.ID = makerID
 	}
 
-	brandQuery := "INSERT INTO Brands (brand_name) VALUES (?)"
-	brandID, err := db.Execute(ctx, brandQuery, p.Brand)
-	if err != nil {
-		return fmt.Errorf("failed to insert brand: %v", err)
+	if p.Brand.Name != "" && len(p.Brand.Name) > 0 {
+		brandQuery := "INSERT INTO Brands (brand_name) VALUES (?)"
+		brandID, err := db.Execute(ctx, brandQuery, p.Brand.Name)
+		if err != nil {
+			return fmt.Errorf("failed to insert brand: %v", err)
+		}
+		p.Brand.ID = brandID
 	}
 
-	productQuery := "INSERT INTO Products (jan, product_name, maker_id, brand_id) VALUES (?, ?, LAST_INSERT_ID(), LAST_INSERT_ID())"
-	_, err = db.Execute(ctx, productQuery, p.JAN, p.ProductName, makerID, brandID)
+	productQuery := "INSERT INTO Products (jan, product_name, maker_id, brand_id) VALUES (?, ?, ?, ?)"
+	_, err := db.Execute(ctx, productQuery, p.JAN, p.ProductName, p.Maker.ID, p.Brand.ID)
 	if err != nil {
 		return fmt.Errorf("failed to insert product: %v", err)
 	}

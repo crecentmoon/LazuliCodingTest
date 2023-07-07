@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Attributes (
-  id INT PRIMARY KEY,
-  jan INT,
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  jan BIGINT NOT NULL,
   attribute_data JSON,
   FOREIGN KEY (jan) REFERENCES Products(jan)
 );
