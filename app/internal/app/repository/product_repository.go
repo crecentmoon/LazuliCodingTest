@@ -3,8 +3,6 @@ package repository
 import (
 	"context"
 	"fmt"
-
-	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
 )
 
 type ProductRepository struct {
@@ -15,7 +13,7 @@ func NewProductRepository(sqlHandler SqlHandler) *ProductRepository {
 	return &ProductRepository{sqlHandler}
 }
 
-func (db *ProductRepository) CreateProducts(ctx context.Context, p domain.Product) error {
+func (db *ProductRepository) CreateProduct(ctx context.Context, p *ProductModel) error {
 	makerQuery := "INSERT INTO Makers (maker_name) VALUES (?)"
 	makerID, err := db.Execute(ctx, makerQuery, p.Maker)
 	if err != nil {
@@ -34,58 +32,60 @@ func (db *ProductRepository) CreateProducts(ctx context.Context, p domain.Produc
 		return fmt.Errorf("failed to insert product: %v", err)
 	}
 
-	// attrQuery := "INSERT INTO Attributes (jan, attribute_data) VALUES (?, ?)"
-	// _, err = db.Execute(ctx, attrQuery, p.JAN, p.Attributes)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to insert attribute: %v", err)
-	// }
-
-	// for _, tag := range p.TagsFromDescription {
-	// 	tagQuery := "INSERT INTO DescriptionTags (jan, tag_from_description) VALUES (?, ?)"
-	// 	_, err = db.Execute(ctx, tagQuery, p.JAN, tag)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to insert description tag: %v", err)
-	// 	}
-	// }
-
-	// for _, tag := range p.TagsFromReview {
-	// 	tagQuery := "INSERT INTO ReviewTags (jan, tag_from_review) VALUES (?, ?)"
-	// 	_, err = db.Execute(ctx, tagQuery, p.JAN, tag)
-	// 	if err != nil {
-	// 		return fmt.Errorf("failed to insert review tag: %v", err)
-	// 	}
-	// }
-
 	return nil
 }
 
-func (db *ProductRepository) CreateAttribute(ctx context.Context, p ProductModel) error {
-	query := "INSERT INTO Brands (jan, attribute_data) VALUES (?, ?)"
-	_, err := db.Execute(ctx, query, p.JAN, p.Attributes)
+func (db *ProductRepository) CreateAttribute(ctx context.Context, p *ProductModel) error {
+	query := "INSERT INTO Attributes (jan, attribute_data) VALUES (?, ?)"
+	_, err := db.Execute(ctx, query, p.JAN, p.Attribute.Value)
 	if err != nil {
-		return fmt.Errorf("failed to insert brand: %v", err)
+		return fmt.Errorf("failed to insert attribute: %v", err)
 	}
 
 	return nil
 }
 
-func (db *ProductRepository) GetProductByJan(JAN interface{}) (*entity.TrnRecipe, error) {
-	r := entity.TrnRecipe{}
-
-	getRecipe := "SELECT * FROM trn_recipes WHERE id = ?"
-	if err := db.Query(&r, getRecipe, recipeId); err != nil {
-		return nil, err
+func (db *ProductRepository) CreateDescriptionTags(ctx context.Context, p *ProductModel) error {
+	for _, tag := range p.DescriptionTags {
+		query := "INSERT INTO DescriptionTags (jan, tag_from_description) VALUES (?, ?)"
+		_, err := db.Execute(ctx, query, p.JAN, tag.Tag)
+		if err != nil {
+			return fmt.Errorf("failed to insert description tag: %v", err)
+		}
 	}
 
-	getIngredients := "SELECT * FROM trn_ingredients WHERE trn_recipe_id = ?"
-	if err := db.Query(&r.TrnIngredients, getIngredients, recipeId); err != nil {
-		return nil, err
-	}
-
-	getCookProcess := "SELECT * FROM trn_cook_processes WHERE trn_recipe_id = ?"
-	if err := db.Query(&r.TrnCookProcesses, getCookProcess, recipeId); err != nil {
-		return nil, err
-	}
-
-	return &r, nil
+	return nil
 }
+
+func (db *ProductRepository) CreateReviewTags(ctx context.Context, p *ProductModel) error {
+	for _, tag := range p.ReviewTags {
+		query := "INSERT INTO ReviewTags (jan, tag_from_review) VALUES (?, ?)"
+		_, err := db.Execute(ctx, query, p.JAN, tag.Tag)
+		if err != nil {
+			return fmt.Errorf("failed to insert review tag: %v", err)
+		}
+	}
+
+	return nil
+}
+
+// func (db *ProductRepository) GetProductByJan(JAN interface{}) (*entity.TrnRecipe, error) {
+// 	r := entity.TrnRecipe{}
+
+// 	getRecipe := "SELECT * FROM trn_recipes WHERE id = ?"
+// 	if err := db.Query(&r, getRecipe, recipeId); err != nil {
+// 		return nil, err
+// 	}
+
+// 	getIngredients := "SELECT * FROM trn_ingredients WHERE trn_recipe_id = ?"
+// 	if err := db.Query(&r.TrnIngredients, getIngredients, recipeId); err != nil {
+// 		return nil, err
+// 	}
+
+// 	getCookProcess := "SELECT * FROM trn_cook_processes WHERE trn_recipe_id = ?"
+// 	if err := db.Query(&r.TrnCookProcesses, getCookProcess, recipeId); err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &r, nil
+// }

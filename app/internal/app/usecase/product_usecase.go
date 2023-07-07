@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/crecentmoon/lazuli-coding-test/internal/app/service"
-	"github.com/crecentmoon/lazuli-coding-test/internal/domain"
 )
 
 type ProductUseCase struct {
@@ -35,10 +34,10 @@ func (p *ProductUseCase) PopulateProductData() {
 	}
 }
 
-func (p *ProductUseCase) SearchProductByJan(jan string) (*domain.Product, error) {
-	return p.productService.SearchProductByJan(jan)
-}
+// func (p *ProductUseCase) SearchProductByJan(jan string) (*domain.Product, error) {
+// 	return p.productService.SearchProductByJan(jan)
+// }
 
-func (p *ProductUseCase) CalculateProductAdequacyRate(product *domain.Product) (float64, error) {
-	return p.productService.CalculateProductAdequacyRate(product)
-}
+// func (p *ProductUseCase) CalculateProductAdequacyRate(product *domain.Product) (float64, error) {
+// 	return p.productService.CalculateProductAdequacyRate(product)
+// }

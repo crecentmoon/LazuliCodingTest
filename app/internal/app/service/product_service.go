@@ -2,6 +2,7 @@ package service
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
 	"log"
 	"os"
@@ -39,7 +40,8 @@ func (r *ProductService) ImportProductDataFromJsonl(file string) error {
 			continue
 		}
 
-		err = repository.StoreProducts(product, db)
+		productModel := r.mapToProductModel(&product)
+		err = r.productRepo.CreateProduct(context.Background(), &productModel)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -53,15 +55,77 @@ func (r *ProductService) ImportProductDataFromJsonl(file string) error {
 	return nil
 }
 
-func (r *ProductService) convertToProductModel(p *domain.Product) (*repository.ProductModel, error) {
+func (r *ProductService) mapToProductModel(p *domain.Product) repository.ProductModel {
 	productModel := &repository.ProductModel{
-		JAN:             strconv.Atoi(p.JAN),
+		JAN:             convertJAN(p.JAN),
 		ProductName:     p.ProductName,
-		Maker:           p.Maker,
-		Brand:           p.Brand,
-		Attribute:       p.Attributes,
-		DescriptionTags: p.DescriptionTags,
-		ReviewTags:      p.ReviewTags,
+		Maker:           r.mapToMakerModel(p),
+		Brand:           r.mapToBrandModel(p),
+		Attribute:       r.mapToAttributeModel(p),
+		DescriptionTags: r.mapToDescriptionTagsModel(p),
+		ReviewTags:      r.mapToReviewTagsModel(p),
 	}
-	return product, nil
+
+	return *productModel
+}
+
+func (r *ProductService) mapToMakerModel(p *domain.Product) repository.MakerModel {
+	makerModel := &repository.MakerModel{
+		Name: p.Maker,
+	}
+
+	return *makerModel
+}
+
+func (r *ProductService) mapToBrandModel(p *domain.Product) repository.BrandModel {
+	brandModel := &repository.BrandModel{
+		Name: p.Brand,
+	}
+
+	return *brandModel
+}
+
+func (r *ProductService) mapToAttributeModel(p *domain.Product) repository.AttributeModel {
+	attributeModel := &repository.AttributeModel{
+		JAN:   convertJAN(p.JAN),
+		Value: p.Attributes,
+	}
+
+	return *attributeModel
+}
+
+func (r *ProductService) mapToDescriptionTagsModel(p *domain.Product) []repository.DescriptionTagModel {
+	var descriptionTagsModel []repository.DescriptionTagModel
+
+	for _, tag := range p.TagsFromDescription {
+		descriptionTagModel := &repository.DescriptionTagModel{
+			JAN: convertJAN(p.JAN),
+			Tag: tag,
+		}
+
+		descriptionTagsModel = append(descriptionTagsModel, *descriptionTagModel)
+	}
+
+	return descriptionTagsModel
+}
+
+func (r *ProductService) mapToReviewTagsModel(p *domain.Product) []repository.ReviewTagModel {
+	var reviewTagsModel []repository.ReviewTagModel
+
+	for _, tag := range p.TagsFromReview {
+		reviewTagModel := &repository.ReviewTagModel{
+			JAN: convertJAN(p.JAN),
+			Tag: tag,
+		}
+
+		reviewTagsModel = append(reviewTagsModel, *reviewTagModel)
+	}
+
+	return reviewTagsModel
+}
+
+func convertJAN(jan string) int {
+	janInt, _ := strconv.Atoi(jan)
+
+	return janInt
 }
